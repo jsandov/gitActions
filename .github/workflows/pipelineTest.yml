@@ -1,4 +1,4 @@
-name: Go Build and Deploy
+name: Go Build, Deploy, and Release
 
 on:
   push:
@@ -28,9 +28,40 @@ jobs:
           name: hello-world
           path: hello-world
 
+  create-release:
+    name: Create Release and Upload Artifact
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: hello-world
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+          prerelease: false
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./hello-world
+          asset_name: hello-world
+          asset_content_type: application/octet-stream
+
   deploy-dev:
     name: Deploy to Dev
-    needs: build
+    needs: create-release
     runs-on: ubuntu-latest
     environment: dev
     steps:
@@ -45,7 +76,7 @@ jobs:
 
   deploy-qa:
     name: Deploy to QA
-    needs: build
+    needs: create-release
     runs-on: ubuntu-latest
     environment: qa
     steps:
