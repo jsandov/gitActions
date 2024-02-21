@@ -2,8 +2,11 @@ name: Go Build, Deploy, and Release
 
 on:
   push:
+    branches:
+      - main
     tags:
-      - 'v*'
+      - 'v*' # This line triggers the workflow for tag pushes matching the semantic versioning pattern
+  workflow_dispatch:
 
 jobs:
   build:
@@ -21,13 +24,12 @@ jobs:
       - name: Build
         run: go build -v -o hello-world ./...
         working-directory: goProgram
-        
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
         with:
           name: hello-world
-          path: hello-world
+          path: goProgram/hello-world # Adjusted the path to match the working directory
 
   create-release:
     name: Create Release and Upload Artifact
@@ -56,7 +58,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./hello-world
+          asset_path: ./goProgram/hello-world # Make sure this path is correct
           asset_name: hello-world
           asset_content_type: application/octet-stream
 
