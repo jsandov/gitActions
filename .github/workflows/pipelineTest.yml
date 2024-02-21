@@ -19,8 +19,9 @@ jobs:
           go-version: '^1.15' # Specify the Go version
 
       - name: Build
-        run: |
-          go build -v -o hello-world ./... # Replace with your build command
+        run: go build -v -o hello-world ./...
+        working-directory: goProgram
+        
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
