@@ -1,0 +1,59 @@
+name: Go Build and Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.15' # Specify the Go version
+
+      - name: Build
+        run: |
+          go build -v -o hello-world ./... # Replace with your build command
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: hello-world
+          path: hello-world
+
+  deploy-dev:
+    name: Deploy to Dev
+    needs: build
+    runs-on: ubuntu-latest
+    environment: dev
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: hello-world
+
+      - name: Deploy to Dev
+        run: echo "Deploying to dev environment" # Replace with your deployment command
+        # Add steps that deploy the artifact to your dev environment
+
+  deploy-qa:
+    name: Deploy to QA
+    needs: build
+    runs-on: ubuntu-latest
+    environment: qa
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: hello-world
+
+      - name: Deploy to QA
+        run: echo "Deploying to QA environment" # Replace with your deployment command
+        # Add steps that deploy the artifact to your QA environment
