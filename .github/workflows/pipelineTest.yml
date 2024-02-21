@@ -7,7 +7,6 @@ on:
     tags:
       - 'v*' # This line triggers the workflow for tag pushes matching the semantic versioning pattern
   workflow_dispatch:
-
 jobs:
   build:
     name: Build
@@ -19,11 +18,18 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: '^1.15' # Specify the Go version
+          go-version: '^1.15'
 
       - name: Build
-        run: go build -v -o hello-world ./...
+        run: go build -v -o hello-world hello-world.go
         working-directory: goProgram
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: hello-world
+          path: goProgram/hello-world
+
 
       - name: Archive production artifacts
         uses: actions/upload-artifact@v2
